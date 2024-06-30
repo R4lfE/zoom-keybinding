@@ -6,6 +6,7 @@ import javax.inject.Inject;
 
 import net.runelite.api.Client;
 import net.runelite.api.ScriptID;
+import net.runelite.api.VarClientInt;
 import net.runelite.client.callback.ClientThread;
 import net.runelite.client.config.ConfigManager;
 import net.runelite.client.input.KeyListener;
@@ -36,15 +37,10 @@ public class ZoomKeybindingPlugin extends Plugin implements KeyListener
 		return configManager.getConfig(ZoomKeybindingConfig.class);
 	}
 
-	boolean zoomInDown = false;
-	boolean zoomOutDown = false;
-	int currentZoomValue;
-
 	@Override
 	protected void startUp() throws Exception
 	{
 		keyManager.registerKeyListener(this);
-		currentZoomValue = client.get3dZoom();
 	}
 
 	@Override
@@ -53,30 +49,21 @@ public class ZoomKeybindingPlugin extends Plugin implements KeyListener
 		keyManager.unregisterKeyListener(this);
 	}
 
-	private void updateZoomValue(int increment) {
-		currentZoomValue = Math.max(100, Math.min(currentZoomValue + increment, 900));
-	}
-
 	@Override
 	public void keyPressed(KeyEvent e) {
+		int increment = 0;
 		if (e.getKeyCode() == config.zoomInKey().getKeyCode()) {
-			zoomInDown = true;
+			increment = config.zoomIncrement();
 		} else if (e.getKeyCode() == config.zoomOutKey().getKeyCode()) {
-			zoomInDown = true;
+			increment = -config.zoomIncrement();
 		}
-	}
 
+		final int zoomValue = client.getVarcIntValue(VarClientInt.CAMERA_ZOOM_FIXED_VIEWPORT) + increment;
+		clientThread.invokeLater(() -> client.runScript(ScriptID.CAMERA_DO_ZOOM, zoomValue, zoomValue));
+	}
+	
 	@Override
 	public void keyReleased(KeyEvent e) {
-		if (e.getKeyCode() == config.zoomInKey().getKeyCode()) {
-			zoomInDown = false;
-			updateZoomValue(config.zoomIncrement());
-		} else if (e.getKeyCode() == config.zoomOutKey().getKeyCode()) {
-			zoomOutDown = false;
-			updateZoomValue(-config.zoomIncrement());
-		}
-		final int zoomValue = currentZoomValue;
-		clientThread.invokeLater(() -> client.runScript(ScriptID.CAMERA_DO_ZOOM, zoomValue, zoomValue));
 	}
 
 	@Override
