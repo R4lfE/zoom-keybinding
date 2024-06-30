@@ -3,17 +3,46 @@ package com.zoomkeybinding;
 import net.runelite.client.config.Config;
 import net.runelite.client.config.ConfigGroup;
 import net.runelite.client.config.ConfigItem;
+import net.runelite.client.config.ModifierlessKeybind;
+import net.runelite.client.config.Range;
+import java.awt.event.KeyEvent;
 
 @ConfigGroup("ZoomKeybinding")
 public interface ZoomKeybindingConfig extends Config
 {
 	@ConfigItem(
-		keyName = "greeting",
-		name = "Welcome Greeting",
-		description = "The message to show to the user when they login"
+		position = 1,
+		keyName = "zoomIncrement",
+		name = "Zoom increment",
+		description = "The value with which the zoom value is changed on key press."
 	)
-	default String greeting()
+	@Range(
+		min = 0,
+		max = 800
+	)
+	default int zoomIncrement() {
+		return 50;
+	}
+
+	@ConfigItem(
+			position = 2,
+			keyName = "zoomInKey",
+			name = "Zoom in key",
+			description = "The key to zoom in."
+	)
+	default ModifierlessKeybind zoomInKey()
 	{
-		return "Hello";
+		return new ModifierlessKeybind(KeyEvent.VK_PAGE_UP, 0);
+	}
+
+	@ConfigItem(
+			position = 3,
+			keyName = "zoomOutKey",
+			name = "Zoom out key",
+			description = "The key to zoom out."
+	)
+	default ModifierlessKeybind zoomOutKey()
+	{
+		return new ModifierlessKeybind(KeyEvent.VK_PAGE_DOWN, 0);
 	}
 }
