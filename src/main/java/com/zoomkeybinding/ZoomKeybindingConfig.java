@@ -11,14 +11,14 @@ import java.awt.event.KeyEvent;
 public interface ZoomKeybindingConfig extends Config
 {
 	@ConfigItem(
-		position = 1,
-		keyName = "zoomIncrement",
-		name = "Zoom increment",
-		description = "The value with which the zoom value is changed on key press."
+			position = 1,
+			keyName = "zoomIncrement",
+			name = "Zoom increment",
+			description = "The value with which the zoom value is changed on key press."
 	)
 	@Range(
-		min = 0,
-		max = 800
+			min = 0,
+			max = 800
 	)
 	default int zoomIncrement() {
 		return 50;
@@ -44,5 +44,16 @@ public interface ZoomKeybindingConfig extends Config
 	default ModifierlessKeybind zoomOutKey()
 	{
 		return new ModifierlessKeybind(KeyEvent.VK_PAGE_DOWN, 0);
+	}
+
+	@ConfigItem(
+			position = 4,
+			keyName = "smoothZoom",
+			name = "Smooth zoom",
+			description = "Enable smooth zooming while holding keys. When enabled, zoom increment is divided into smaller steps for smoother motion."
+	)
+	default boolean smoothZoom()
+	{
+		return false;
 	}
 }
