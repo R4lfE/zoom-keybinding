@@ -23,6 +23,7 @@ public class ZoomKeybindingPlugin extends Plugin implements KeyListener
 {
 	private static final int ZOOM_UPDATE_INTERVAL_MS = 16; // ~60 FPS
 	private static final int SMOOTH_ZOOM_DIVISOR = 8; // Divides config increment for smooth updates
+	private static final int FRAMES_PER_SECOND = 60;
 
 	@Inject
 	private Client client;
@@ -149,6 +150,20 @@ public class ZoomKeybindingPlugin extends Plugin implements KeyListener
 		}
 	}
 
+	private int getSmoothZoomIncrementPerUpdate()
+	{
+		if (config.separateSmoothIncrement())
+		{
+			// Use separate smooth increment, divide by FPS to get per-frame increment
+			return Math.max(1, config.smoothZoomIncrement() / FRAMES_PER_SECOND);
+		}
+		else
+		{
+			// Use regular increment divided by divisor (original behavior)
+			return Math.max(1, config.zoomIncrement() / SMOOTH_ZOOM_DIVISOR);
+		}
+	}
+
 	private void startSmoothZoom()
 	{
 		if (zoomTask != null && !zoomTask.isDone())
@@ -163,7 +178,7 @@ public class ZoomKeybindingPlugin extends Plugin implements KeyListener
 				return;
 			}
 
-			int zoomIncrementPerUpdate = Math.max(1, config.zoomIncrement() / SMOOTH_ZOOM_DIVISOR);
+			int zoomIncrementPerUpdate = getSmoothZoomIncrementPerUpdate();
 			int totalZoomIncrement = 0;
 
 			if (zoomingIn)
