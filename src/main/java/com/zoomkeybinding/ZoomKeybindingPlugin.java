@@ -59,7 +59,7 @@ public class ZoomKeybindingPlugin extends Plugin implements KeyListener
 	protected void shutDown() throws Exception
 	{
 		keyManager.unregisterKeyListener(this);
-		stopZooming();
+		stopSmoothZoom();
 	}
 
 	@Override
@@ -115,21 +115,17 @@ public class ZoomKeybindingPlugin extends Plugin implements KeyListener
 
 	private void handleSmoothZoomKeyPressed(KeyEvent keyEvent)
 	{
-		if (keyEvent.getKeyCode() == config.zoomInKey().getKeyCode())
+		int keyCode = keyEvent.getKeyCode();
+
+		if (keyCode == config.zoomInKey().getKeyCode() && !zoomingIn)
 		{
-			if (!zoomingIn)
-			{
-				zoomingIn = true;
-				startSmoothZoom();
-			}
+			zoomingIn = true;
+			startSmoothZoom();
 		}
-		else if (keyEvent.getKeyCode() == config.zoomOutKey().getKeyCode())
+		else if (keyCode == config.zoomOutKey().getKeyCode() && !zoomingOut)
 		{
-			if (!zoomingOut)
-			{
-				zoomingOut = true;
-				startSmoothZoom();
-			}
+			zoomingOut = true;
+			startSmoothZoom();
 		}
 	}
 
@@ -140,7 +136,7 @@ public class ZoomKeybindingPlugin extends Plugin implements KeyListener
 			zoomingIn = false;
 			if (!zoomingOut)
 			{
-				stopZooming();
+				stopSmoothZoom();
 			}
 		}
 		else if (keyEvent.getKeyCode() == config.zoomOutKey().getKeyCode())
@@ -148,7 +144,7 @@ public class ZoomKeybindingPlugin extends Plugin implements KeyListener
 			zoomingOut = false;
 			if (!zoomingIn)
 			{
-				stopZooming();
+				stopSmoothZoom();
 			}
 		}
 	}
@@ -189,11 +185,12 @@ public class ZoomKeybindingPlugin extends Plugin implements KeyListener
 		}, 0, ZOOM_UPDATE_INTERVAL_MS, TimeUnit.MILLISECONDS);
 	}
 
-	private void stopZooming()
+	private void stopSmoothZoom()
 	{
 		if (zoomTask != null && !zoomTask.isDone())
 		{
 			zoomTask.cancel(false);
 		}
+		zoomTask = null;
 	}
 }
